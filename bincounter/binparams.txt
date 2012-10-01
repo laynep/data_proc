@@ -1,0 +1,5 @@
+&sample,
+  binnumb=515,
+  dimn=2,
+  tot=2500000
+/
