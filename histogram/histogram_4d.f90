@@ -13,7 +13,7 @@ program histogram
 	real(dp), dimension(4) :: del
 	real(dp), dimension(:), allocatable :: v1, v2, v3, v4
 	integer :: bins, succ_l, succ_w, fail_l, fail_w
-	integer :: i, j, u, test, err
+	integer :: i, j, u, test, err, w
 	logical, dimension(:), allocatable :: mask1, mask2, mask3, mask4
   logical :: looping, both
 
@@ -73,25 +73,34 @@ program histogram
     print*,"Reading fail file."
 
     do3:  do
-  	  open(unit=newunit(u), file="totalsucc.bin", form="unformatted")
       !Allocate working arrays.
     	allocate(v1(succ_l+fail_l),v2(succ_l+fail_l),v3(succ_l+fail_l),v4(succ_l+fail_l))
     	allocate(mask1(succ_l+fail_l),mask2(succ_l+fail_l),mask3(succ_l+fail_l),mask4(succ_l+fail_l))
 
-      looping=.false.
-      do4: do i=succ_l,succ_l+fail_l
+      !Load the success part of vectors.
+	    open(unit=newunit(u), file="totalsucc.bin", form="unformatted")
+      do i=1,succ_l
     		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
+      end do
+      close(u)
+
+  	  open(unit=newunit(w), file="totalfail.bin", form="unformatted")
+      looping=.false.
+      do4: do i=succ_l+1,succ_l+fail_l-1
+    		read(w,iostat=err),v1(i),v2(i),v3(i),v4(i)
+
         if (err==5001 .and. i .ne. succ_l+fail_l) then
           looping=.true.
-          fail_l=i-succ_l
+          fail_l=i-succ_l-1
           exit do4
         end if
       end do do4
-      close(u)
-      if (looping) print*,"Fail set not declared properly, reloading..."
+      close(w)
+
       if (.not. looping) then
         exit do3
       else
+        print*,"Fail set not declared properly. Reloading..."
         deallocate(v1,v2,v3,v4,mask1,mask2,mask3,mask4)
         cycle
       end if
@@ -102,7 +111,7 @@ program histogram
   	print*,"Step size", del
 
     !Calculate the histogram.
-  	print*, "Calculating histogram for fail table"
+  	print*, "Calculating histogram for both tables"
   	call calc_histogram()
 
   	!Print histogram data
@@ -125,10 +134,10 @@ program histogram
     subroutine calc_histogram()
 
       do i=0,bins-1
-    		mask1= ((v1>minval(v1)+(i*del(1))) .and. (v1<minval(v1)+((i+1)*del(1))))
-    		mask2= ((v2>minval(v2)+(i*del(2))) .and. (v2<minval(v2)+((i+1)*del(2))))
-    		mask3= ((v3>minval(v3)+(i*del(3))) .and. (v3<minval(v3)+((i+1)*del(3))))
-    		mask4= ((v4>minval(v4)+(i*del(4))) .and. (v4<minval(v4)+((i+1)*del(4))))
+    		mask1= ((v1.ge.minval(v1)+(i*del(1))) .and. (v1<minval(v1)+((i+1)*del(1))))
+    		mask2= ((v2.ge.minval(v2)+(i*del(2))) .and. (v2<minval(v2)+((i+1)*del(2))))
+    		mask3= ((v3.ge.minval(v3)+(i*del(3))) .and. (v3<minval(v3)+((i+1)*del(3))))
+    		mask4= ((v4.ge.minval(v4)+(i*del(4))) .and. (v4<minval(v4)+((i+1)*del(4))))
     		h1(i+1)=count(mask1)
     		h2(i+1)=count(mask2)
     		h3(i+1)=count(mask3)
@@ -164,27 +173,6 @@ program histogram
       close(4)
 
     end subroutine print_histogram
-
-!    subroutine count_elements(fname,numb)
-!
-!      character(len=100), intent(inout) :: fname
-!      real(dp), dimension(succ_l) :: x
-!      integer, intent(out) :: numb
-!      integer :: io, maxim
-!
-!      maxim=succ_l
-!      fname=trim(fname)
-!      open(unit=newunit(u),file=fname,form='unformatted')
-!      read(u,*,iostat=io)(x(i),i=1,maxim)
-!print*,io
-!      if(io<0) then
-!        numb=i-1
-!      else
-!        numb=maxim
-!      end if
-!      close(u)
-!
-!    end subroutine count_elements
 
 end program histogram
 
