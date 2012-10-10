@@ -38,6 +38,8 @@ program bincounter
   allocate(binsize(dimn))
   do i=1,dimn
     binsize(i)=(maxval(table(:,i))-minval(table(:,i)))/real(binnumb)
+    print*, "max in dimn ", i ," is ",maxval(table(:,i))
+    print*, "min in dimn ", i ," is ",minval(table(:,i))
   end do
 
   !Make bins table.
@@ -50,10 +52,9 @@ program bincounter
        bins(i,dimn-j)=mod((i-1)/change,binnumb)+1   !Note int div
      end do
   end do
-
   !Sort into bins.
   do i=1,size(table,2)
-    inttable(:,i)=ceiling(table(:,i)/binsize(i))
+    inttable(:,i)=ceiling((table(:,i)-minval(table(:,i)))/binsize(i))
   end do
   do i=1,size(inttable,1)
     call locate(bins,inttable(i,1),start)
@@ -71,12 +72,21 @@ program bincounter
   !Print the bin information.
   allocate(binsreal(size(bins,1),dimn))
   do i=1,dimn
-    binsreal(:,i)=bins(:,i)*binsize(i)
+    binsreal(:,i)=bins(:,i)*binsize(i)+minval(table(:,i))
   end do
-  open(unit=newunit(u),file="bincount.txt")
+  open(unit=newunit(u),file="count_with_bins.txt")
   do i=1, size(binsreal,1)
     write(u,fmt=*),(binsreal(i,j),j=1,dimn), bins(i,size(bins,2))
   end do
   close(u)
+  !If 2D, then also print info for plotting with Mathematica.  This mimics the
+  !output from BinCounts[data,{0,max,binsize},{0,max,binsize}].
+  if (dimn==2) then
+    open(unit=newunit(u),file="bincounts.txt")
+    do i=0, binnumb-1
+      write(u,fmt=*), (bins(j+i*binnumb,3),j=1,binnumb)
+    end do
+    close(u)
+  end if
 
 end program bincounter

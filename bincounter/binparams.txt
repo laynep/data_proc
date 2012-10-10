@@ -1,5 +1,5 @@
 &sample,
-  binnumb=515,
+  binnumb=1500,
   dimn=2,
   tot=2500000
 /

@@ -1,6 +1,9 @@
 #24800000,
 &sample,
-	succ_l=74000000, 
+	succ_l=25000000, 
 	succ_w=4, 
-	bins=100
+  fail_l=25000329,
+  fail_w=4,
+	bins=100,
+  both=.true.
 /
