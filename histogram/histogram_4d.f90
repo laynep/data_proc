@@ -31,32 +31,20 @@ program histogram
  	!Open the success file and read into vectors.
   print*,"Reading success file."
   allocate(h1(bins),h2(bins),h3(bins),h4(bins))
-  do1:  do
-	  open(unit=newunit(u), file="totalsucc.bin", form="unformatted")
-    !Allocate working arrays.
-  	allocate(v1(succ_l),v2(succ_l),v3(succ_l),v4(succ_l))
-  	allocate(mask1(succ_l),mask2(succ_l),mask3(succ_l),mask4(succ_l))
+  open(unit=newunit(u), file="totalsucc.bin", form="unformatted")
 
-    looping=.false.
-    do2: do i=1,succ_l
-  		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
-      call small_value_check(toosmall)
-      badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
-      if (badvalue) then
-        looping=.true.
-        succ_l=i
-        exit do2
-      end if
-      end do do2
-    close(u)
-    if (looping) print*,"Success set not declared properly. Reloading..."
-    if (.not. looping) then
-      exit do1
-    else
-      deallocate(v1,v2,v3,v4,mask1,mask2,mask3,mask4)
-      cycle
+  !Allocate working arrays.
+ 	allocate(v1(succ_l),v2(succ_l),v3(succ_l),v4(succ_l))
+  allocate(mask1(succ_l),mask2(succ_l),mask3(succ_l),mask4(succ_l))
+  do i=1,succ_l
+ 		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
+    call small_value_check(toosmall)
+    badvalue=(err==5001 .and. i .ne. succ_l) .or. toosmall
+    if (badvalue) then
+      print*,"Reading encountered a bad value at ", i, "success"
+      stop
     end if
-  end do do1
+  end do
 
 	!Find bin size for each dimension.
   call find_bin_size()
@@ -83,32 +71,21 @@ program histogram
     deallocate(mask1,mask2, mask3, mask4)
     print*,"Reading small corepoint files."
     allocate(h1(bins),h2(bins),h3(bins),h4(bins))
-    do5:  do
-  	  open(unit=newunit(u), file="smallcorepoints.bin", form="unformatted")
-      !Allocate working arrays.
-    	allocate(v1(small_l),v2(small_l),v3(small_l),v4(small_l))
-    	allocate(mask1(small_l),mask2(small_l),mask3(small_l),mask4(small_l))
+	  open(unit=newunit(u), file="smallcorepoints.bin", form="unformatted")
+    !Allocate working arrays.
+  	allocate(v1(small_l),v2(small_l),v3(small_l),v4(small_l))
+   	allocate(mask1(small_l),mask2(small_l),mask3(small_l),mask4(small_l))
 
-      looping=.false.
-      do6: do i=1,small_l
-    		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
-        call small_value_check(toosmall)
-        badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
-        if (badvalue) then
-          looping=.true.
-          small_l=i-1
-          exit do6
-        end if
-        end do do6
-      close(u)
-      if (looping) print*,"Small core set not declared properly. Reloading..."
-      if (.not. looping) then
-        exit do5
-      else
-        deallocate(v1,v2,v3,v4,mask1,mask2,mask3,mask4)
-        cycle
+    do i=1,small_l
+   		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
+      call small_value_check(toosmall)
+      badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
+      if (badvalue) then
+        print*,"Reading encountered a bad value at ", i, "small core"
+        stop
       end if
-    end do do5
+    end do
+    close(u)
 
     !Calculate the histogram.
   	print*, "Calculating histogram for small core table."
@@ -124,32 +101,21 @@ program histogram
     deallocate(mask1,mask2, mask3, mask4)
     print*,"Reading big corepoint files."
     allocate(h1(bins),h2(bins),h3(bins),h4(bins))
-    do7:  do
-  	  open(unit=newunit(u), file="bigcorepoints.bin", form="unformatted")
-      !Allocate working arrays.
-    	allocate(v1(big_l),v2(big_l),v3(big_l),v4(big_l))
-    	allocate(mask1(big_l),mask2(big_l),mask3(big_l),mask4(big_l))
+	  open(unit=newunit(u), file="bigcorepoints.bin", form="unformatted")
+    !Allocate working arrays.
+  	allocate(v1(big_l),v2(big_l),v3(big_l),v4(big_l))
+   	allocate(mask1(big_l),mask2(big_l),mask3(big_l),mask4(big_l))
 
-      looping=.false.
-      do8: do i=1,big_l
-    		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
-        call small_value_check(toosmall)
-        badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
-        if (badvalue) then
-          looping=.true.
-          big_l=i-1
-          exit do8
-        end if
-      end do do8
-      close(u)
-      if (looping) print*,"Big core set not declared properly. Reloading..."
-      if (.not. looping) then
-        exit do7
-      else
-        deallocate(v1,v2,v3,v4,mask1,mask2,mask3,mask4)
-        cycle
+    do i=1,big_l
+   		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
+      call small_value_check(toosmall)
+      badvalue=(err==5001 .and. i .ne. big_l) .or. toosmall
+      if (badvalue) then
+        print*,"Reading encountered a bad value at ", i, "big core"
+        stop
       end if
-    end do do7
+    end do
+    close(u)
 
     !Calculate the histogram.
   	print*, "Calculating histogram for big core table."
@@ -166,40 +132,28 @@ program histogram
     deallocate(v1,v2,v3,v4,mask1,mask2,mask3,mask4)
     print*,"Reading fail file."
 
-    do3:  do
-      !Allocate working arrays.
-    	allocate(v1(succ_l+fail_l),v2(succ_l+fail_l),v3(succ_l+fail_l),v4(succ_l+fail_l))
-    	allocate(mask1(succ_l+fail_l),mask2(succ_l+fail_l),mask3(succ_l+fail_l),mask4(succ_l+fail_l))
+    !Allocate working arrays.
+    allocate(v1(succ_l+fail_l),v2(succ_l+fail_l),v3(succ_l+fail_l),v4(succ_l+fail_l))
+    allocate(mask1(succ_l+fail_l),mask2(succ_l+fail_l),mask3(succ_l+fail_l),mask4(succ_l+fail_l))
 
-      !Load the success part of vectors.
-	    open(unit=newunit(u), file="totalsucc.bin", form="unformatted")
-      do i=1,succ_l
-    		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
-      end do
-      close(u)
+    !Load the success part of vectors.
+	  open(unit=newunit(u), file="totalsucc.bin", form="unformatted")
+    do i=1,succ_l
+    	read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
+    end do
+    close(u)
 
-  	  open(unit=newunit(w), file="totalfail.bin", form="unformatted")
-      looping=.false.
-      do4: do i=succ_l+1,succ_l+fail_l-1
-    		read(w,iostat=err),v1(i),v2(i),v3(i),v4(i)
-        call small_value_check(toosmall)
-        badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
-        if (badvalue) then
-          looping=.true.
-          fail_l=i-succ_l-1
-          exit do4
-        end if
-        end do do4
-        close(w)
-
-      if (.not. looping) then
-        exit do3
-      else
-        print*,"Fail set not declared properly. Reloading..."
-        deallocate(v1,v2,v3,v4,mask1,mask2,mask3,mask4)
-        cycle
+  	open(unit=newunit(w), file="totalfail.bin", form="unformatted")
+    do i=succ_l+1,succ_l+fail_l
+    	read(w,iostat=err),v1(i),v2(i),v3(i),v4(i)
+      call small_value_check(toosmall)
+      badvalue=(err==5001 .and. i .ne. succ_l+fail_l) .or. toosmall
+      if (badvalue) then
+        print*,"Reading encountered a bad value at ", i, "total"
+        stop
       end if
-    end do do3
+    end do
+    close(w)
 
     !Calculate the histogram.
   	print*, "Calculating histogram for both tables"
