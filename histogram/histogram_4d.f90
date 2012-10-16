@@ -99,7 +99,7 @@ program histogram
         call small_value_check()
         end do do6
       close(u)
-      if (looping) print*,"Success set not declared properly. Reloading..."
+      if (looping) print*,"Small core set not declared properly. Reloading..."
       if (.not. looping) then
         exit do5
       else
@@ -139,7 +139,7 @@ program histogram
         call small_value_check()
         end do do8
       close(u)
-      if (looping) print*,"Success set not declared properly. Reloading..."
+      if (looping) print*,"Big core set not declared properly. Reloading..."
       if (.not. looping) then
         exit do7
       else
@@ -222,10 +222,10 @@ program histogram
     subroutine calc_histogram()
 
       do i=0,bins-1
-    		mask1= ((v1.ge.minval(v1)+(i*del(1))) .and. (v1<minval(v1)+((i+1)*del(1))))
-    		mask2= ((v2.ge.minval(v2)+(i*del(2))) .and. (v2<minval(v2)+((i+1)*del(2))))
-    		mask3= ((v3.ge.minval(v3)+(i*del(3))) .and. (v3<minval(v3)+((i+1)*del(3))))
-    		mask4= ((v4.ge.minval(v4)+(i*del(4))) .and. (v4<minval(v4)+((i+1)*del(4))))
+    		mask1= ((v1.ge.minim(1)+(i*del(1))) .and. (v1<minim(1)+((i+1)*del(1))))
+    		mask2= ((v2.ge.minim(2)+(i*del(2))) .and. (v2<minim(2)+((i+1)*del(2))))
+    		mask3= ((v3.ge.minim(3)+(i*del(3))) .and. (v3<minim(3)+((i+1)*del(3))))
+    		mask4= ((v4.ge.minim(4)+(i*del(4))) .and. (v4<minim(4)+((i+1)*del(4))))
     		h1(i+1)=count(mask1)
     		h2(i+1)=count(mask2)
     		h3(i+1)=count(mask3)
