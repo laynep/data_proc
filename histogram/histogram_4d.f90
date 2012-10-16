@@ -3,6 +3,10 @@
 !from are totalsucc.bin and totalfail.bin.  If we want to only perform the
 !histogram binning on the first file, then specify both=.false. in the namelist.
 
+!NOTE: this has a check when reading files to see if they are ~0, which was not
+!allowed when this program was originally implemented.  If we want these entries
+!to be OK, then omit the small_value_check routine in the loop.
+
 program histogram
   use types, only :dp
   use features, only : newunit
@@ -39,7 +43,7 @@ program histogram
   do i=1,succ_l
  		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
     call small_value_check(toosmall)
-    badvalue=(err==5001 .and. i .ne. succ_l) .or. toosmall
+    badvalue=(err>0 .and. i .ne. succ_l) .or. toosmall
     if (badvalue) then
       print*,"Reading encountered a bad value at ", i, "success"
       stop
@@ -79,7 +83,7 @@ program histogram
     do i=1,small_l
    		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
       call small_value_check(toosmall)
-      badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
+      badvalue=(err>0 .and. i .ne. small_l) .or. toosmall
       if (badvalue) then
         print*,"Reading encountered a bad value at ", i, "small core"
         stop
@@ -109,7 +113,7 @@ program histogram
     do i=1,big_l
    		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
       call small_value_check(toosmall)
-      badvalue=(err==5001 .and. i .ne. big_l) .or. toosmall
+      badvalue=(err>0 .and. i .ne. big_l) .or. toosmall
       if (badvalue) then
         print*,"Reading encountered a bad value at ", i, "big core"
         stop
@@ -147,7 +151,7 @@ program histogram
     do i=succ_l+1,succ_l+fail_l
     	read(w,iostat=err),v1(i),v2(i),v3(i),v4(i)
       call small_value_check(toosmall)
-      badvalue=(err==5001 .and. i .ne. succ_l+fail_l) .or. toosmall
+      badvalue=(err>0 .and. i .ne. succ_l+fail_l) .or. toosmall
       if (badvalue) then
         print*,"Reading encountered a bad value at ", i, "total"
         stop
