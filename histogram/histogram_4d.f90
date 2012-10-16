@@ -16,7 +16,7 @@ program histogram
   integer :: big_l, big_w
 	integer :: i, j, u, test, err, w
 	logical, dimension(:), allocatable :: mask1, mask2, mask3, mask4
-  logical :: looping, both, core
+  logical :: looping, both, core, toosmall, badvalue
 
 	!Read dimns of succ table, numb of bins want in histog.
 	namelist/ sample / succ_l, succ_w, fail_l, fail_w, bins, both, core,&
@@ -40,12 +40,13 @@ program histogram
     looping=.false.
     do2: do i=1,succ_l
   		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
-      if (err==5001 .and. i .ne. succ_l) then
+      call small_value_check(toosmall)
+      badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
+      if (badvalue) then
         looping=.true.
         succ_l=i
         exit do2
       end if
-      call small_value_check()
       end do do2
     close(u)
     if (looping) print*,"Success set not declared properly. Reloading..."
@@ -91,12 +92,13 @@ program histogram
       looping=.false.
       do6: do i=1,small_l
     		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
-        if (err==5001 .and. i .ne. small_l) then
+        call small_value_check(toosmall)
+        badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
+        if (badvalue) then
           looping=.true.
           small_l=i
           exit do6
         end if
-        call small_value_check()
         end do do6
       close(u)
       if (looping) print*,"Small core set not declared properly. Reloading..."
@@ -131,13 +133,14 @@ program histogram
       looping=.false.
       do8: do i=1,big_l
     		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
-        if (err==5001 .and. i .ne. big_l) then
+        call small_value_check(toosmall)
+        badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
+        if (badvalue) then
           looping=.true.
           big_l=i
           exit do8
         end if
-        call small_value_check()
-        end do do8
+      end do do8
       close(u)
       if (looping) print*,"Big core set not declared properly. Reloading..."
       if (.not. looping) then
@@ -179,13 +182,13 @@ program histogram
       looping=.false.
       do4: do i=succ_l+1,succ_l+fail_l-1
     		read(w,iostat=err),v1(i),v2(i),v3(i),v4(i)
-
-        if (err==5001 .and. i .ne. succ_l+fail_l) then
+        call small_value_check(toosmall)
+        badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
+        if (badvalue) then
           looping=.true.
           fail_l=i-succ_l-1
           exit do4
         end if
-        call small_value_check()
         end do do4
         close(w)
 
@@ -276,14 +279,19 @@ program histogram
 
     end subroutine print_histogram
 
-    subroutine small_value_check()
+    subroutine small_value_check(checking)
+      logical, intent(out) :: checking
 
       tol=1e0_dp
 
+      checking=.false.
       if (abs(v1(i))<tol .and. abs(v2(i))<tol .and. abs(v3(i))<tol .and. &
         &abs(v4(i))<tol) then
+        print*,"Sanity check: v's are too small..."
         print*,v1(i),v2(i),v3(i),v4(i)
+        checking=.true.
       end if
+
 
     end subroutine small_value_check
 
