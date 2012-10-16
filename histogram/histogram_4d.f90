@@ -9,16 +9,18 @@ program histogram
   implicit none
 
 	real(dp), dimension(:), allocatable :: h1, h2, h3, h4
-	real(dp) :: start
+	real(dp) :: tol, minim(4)
 	real(dp), dimension(4) :: del
 	real(dp), dimension(:), allocatable :: v1, v2, v3, v4
-	integer :: bins, succ_l, succ_w, fail_l, fail_w
+	integer :: bins, succ_l, succ_w, fail_l, fail_w, small_l, small_w
+  integer :: big_l, big_w
 	integer :: i, j, u, test, err, w
 	logical, dimension(:), allocatable :: mask1, mask2, mask3, mask4
-  logical :: looping, both
+  logical :: looping, both, core
 
 	!Read dimns of succ table, numb of bins want in histog.
-	namelist/ sample / succ_l, succ_w, fail_l, fail_w, bins, both
+	namelist/ sample / succ_l, succ_w, fail_l, fail_w, bins, both, core,&
+    &small_l, small_w, big_l, big_w
 
 	!Finds dimension for success file.
 	print*,"Reading namelist"
@@ -43,8 +45,8 @@ program histogram
         succ_l=i
         exit do2
       end if
-      !if(mod(i,100000)==0) print*,i, err
-    end do do2
+      call small_value_check()
+      end do do2
     close(u)
     if (looping) print*,"Success set not declared properly. Reloading..."
     if (.not. looping) then
@@ -59,6 +61,12 @@ program histogram
   call find_bin_size()
 	print*,"Step size", del
 
+  !Set lowest point.
+  minim(1)=minval(v1)
+  minim(2)=minval(v2)
+  minim(3)=minval(v3)
+  minim(4)=minval(v4)
+
   !Calculate the histogram.
 	print*, "Calculating histogram for success table"
 	call calc_histogram()
@@ -66,6 +74,83 @@ program histogram
 	!Print histogram data
 	print*,"Printing data"
   call print_histogram(1)
+
+  if (core) then
+    !Repeat for the core samples.
+    print*,"Reading small corepoint files."
+    allocate(h1(bins),h2(bins),h3(bins),h4(bins))
+    do5:  do
+  	  open(unit=newunit(u), file="smallcorepoints.bin", form="unformatted")
+      !Allocate working arrays.
+    	allocate(v1(small_l),v2(small_l),v3(small_l),v4(small_l))
+    	allocate(mask1(small_l),mask2(small_l),mask3(small_l),mask4(small_l))
+
+      looping=.false.
+      do6: do i=1,small_l
+    		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
+        if (err==5001 .and. i .ne. small_l) then
+          looping=.true.
+          small_l=i
+          exit do6
+        end if
+        call small_value_check()
+        end do do6
+      close(u)
+      if (looping) print*,"Success set not declared properly. Reloading..."
+      if (.not. looping) then
+        exit do5
+      else
+        deallocate(v1,v2,v3,v4,mask1,mask2,mask3,mask4)
+        cycle
+      end if
+    end do do5
+
+    !Calculate the histogram.
+  	print*, "Calculating histogram for small core table."
+  	call calc_histogram()
+
+  	!Print histogram data
+  	print*,"Printing data"
+    call print_histogram(3)
+
+
+    print*,"Reading big corepoint files."
+    allocate(h1(bins),h2(bins),h3(bins),h4(bins))
+    do7:  do
+  	  open(unit=newunit(u), file="bigcorepoints.bin", form="unformatted")
+      !Allocate working arrays.
+    	allocate(v1(big_l),v2(big_l),v3(big_l),v4(big_l))
+    	allocate(mask1(big_l),mask2(big_l),mask3(big_l),mask4(big_l))
+
+      looping=.false.
+      do8: do i=1,big_l
+    		read(u,iostat=err),v1(i),v2(i),v3(i),v4(i)
+        if (err==5001 .and. i .ne. big_l) then
+          looping=.true.
+          big_l=i
+          exit do8
+        end if
+        call small_value_check()
+        end do do8
+      close(u)
+      if (looping) print*,"Success set not declared properly. Reloading..."
+      if (.not. looping) then
+        exit do7
+      else
+        deallocate(v1,v2,v3,v4,mask1,mask2,mask3,mask4)
+        cycle
+      end if
+    end do do7
+
+    !Calculate the histogram.
+  	print*, "Calculating histogram for big core table."
+  	call calc_histogram()
+
+  	!Print histogram data
+  	print*,"Printing data"
+    call print_histogram(4)
+
+  end if
 
   if (both) then
     !Repeat for both success and fail.
@@ -94,8 +179,9 @@ program histogram
           fail_l=i-succ_l-1
           exit do4
         end if
-      end do do4
-      close(w)
+        call small_value_check()
+        end do do4
+        close(w)
 
       if (.not. looping) then
         exit do3
@@ -105,10 +191,6 @@ program histogram
         cycle
       end if
     end do do3
-
-    !Find bin size for each dimension.
-    call find_bin_size()
-  	print*,"Step size", del
 
     !Calculate the histogram.
   	print*, "Calculating histogram for both tables"
@@ -150,22 +232,36 @@ program histogram
 
       integer, intent(in) :: loop
 
+      !Success set.
       if (loop==1) then
         open(unit=1,file="data_histpsi.1")
         open(unit=2,file="data_histphi.2")
         open(unit=3,file="data_histpsi_dot.3")
         open(unit=4,file="data_histphi_dot.4")
-      else
+      !Small core set.
+      else if (loop==2) then
+        open(unit=1,file="small_histpsi.1")
+        open(unit=2,file="small_histphi.2")
+        open(unit=3,file="small_histpsi_dot.3")
+        open(unit=4,file="small_histphi_dot.4")
+      !Big core set.
+      else if (loop==3) then
+        open(unit=1,file="big_histpsi.1")
+        open(unit=2,file="big_histphi.2")
+        open(unit=3,file="big_histpsi_dot.3")
+        open(unit=4,file="big_histphi_dot.4")
+      !Total succ + fail.
+      else if (loop==4) then
         open(unit=1,file="data_total_histpsi.1")
         open(unit=2,file="data_total_histphi.2")
         open(unit=3,file="data_total_histpsi_dot.3")
         open(unit=4,file="data_total_histphi_dot.4")
       end if
     	do i=1,bins
-    		write(1,fmt=*), minval(v1)+del(1)*i, h1(i)
-    		write(2,fmt=*), minval(v2)+del(2)*i, h2(i)
-    		write(3,fmt=*), minval(v3)+del(3)*i, h3(i)
-    		write(4,fmt=*), minval(v4)+del(4)*i, h4(i)
+    		write(1,fmt=*), minim(1)+del(1)*i, h1(i)
+    		write(2,fmt=*), minim(2)+del(2)*i, h2(i)
+    		write(3,fmt=*), minim(3)+del(3)*i, h3(i)
+    		write(4,fmt=*), minim(4)+del(4)*i, h4(i)
     	end do
       close(1)
       close(2)
@@ -173,6 +269,17 @@ program histogram
       close(4)
 
     end subroutine print_histogram
+
+    subroutine small_value_check()
+
+      tol=1e0_dp
+
+      if (abs(v1(i))<tol .and. abs(v2(i))<tol .and. abs(v3(i))<tol .and. &
+        &abs(v4(i))<tol) then
+        print*,v1(i),v2(i),v3(i),v4(i)
+      end if
+
+    end subroutine small_value_check
 
 end program histogram
 

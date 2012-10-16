@@ -1,9 +1,13 @@
-#24800000,
 &sample,
 	succ_l=25000000, 
 	succ_w=4, 
   fail_l=25000329,
   fail_w=4,
+  small_l=15000000,
+  small_w=4,
+  big_l=15000000,
+  big_w=4,
 	bins=100,
-  both=.true.
+  both=.false.,
+  core=.true.
 /
