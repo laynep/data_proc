@@ -77,6 +77,9 @@ program histogram
 
   if (core) then
     !Repeat for the core samples.
+    deallocate(h1,h2,h3,h4)
+    deallocate(v1,v2,v3,v4)
+    deallocate(mask1,mask2, mask3, mask4)
     print*,"Reading small corepoint files."
     allocate(h1(bins),h2(bins),h3(bins),h4(bins))
     do5:  do
@@ -113,7 +116,10 @@ program histogram
   	print*,"Printing data"
     call print_histogram(3)
 
-
+    !Repeat for the big core points.
+    deallocate(h1,h2,h3,h4)
+    deallocate(v1,v2,v3,v4)
+    deallocate(mask1,mask2, mask3, mask4)
     print*,"Reading big corepoint files."
     allocate(h1(bins),h2(bins),h3(bins),h4(bins))
     do7:  do
