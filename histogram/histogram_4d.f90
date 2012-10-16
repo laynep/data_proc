@@ -96,7 +96,7 @@ program histogram
         badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
         if (badvalue) then
           looping=.true.
-          small_l=i
+          small_l=i-1
           exit do6
         end if
         end do do6
@@ -137,7 +137,7 @@ program histogram
         badvalue=(err==5001 .and. i .ne. small_l) .or. toosmall
         if (badvalue) then
           looping=.true.
-          big_l=i
+          big_l=i-1
           exit do8
         end if
       end do do8
