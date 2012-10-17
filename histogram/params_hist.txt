@@ -9,5 +9,5 @@
   big_w=4
   bins=100
   both=.true.
-  core=.false.
+  core=.true.
 /

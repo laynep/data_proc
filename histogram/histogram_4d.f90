@@ -49,6 +49,7 @@ program histogram
       stop
     end if
   end do
+  close(u)
 
 	!Find bin size for each dimension.
   call find_bin_size()
@@ -75,6 +76,7 @@ program histogram
     deallocate(mask1,mask2, mask3, mask4)
     print*,"Reading small corepoint files."
     allocate(h1(bins),h2(bins),h3(bins),h4(bins))
+
 	  open(unit=newunit(u), file="smallcorepoints.bin", form="unformatted")
     !Allocate working arrays.
   	allocate(v1(small_l),v2(small_l),v3(small_l),v4(small_l))
