@@ -9,9 +9,9 @@
   dimn=4
 /
 &parameters
-	m = .03D3,
-	mu = 500D3,
-	nu = .015D3,
-	lambda = 6.8D-3,
-	energy_scale=1E3
+  m = .03D3,
+  mu = 500D3,
+  nu = .015D3,
+  lambda = 6.8D-3,
+  energy_scale=1E3
 /
