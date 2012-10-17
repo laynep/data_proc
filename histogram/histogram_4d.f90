@@ -242,7 +242,7 @@ program histogram
     subroutine small_value_check(checking)
       logical, intent(out) :: checking
 
-      tol=1e0_dp
+      tol=1e-10_dp
 
       checking=.false.
       if (abs(v1(i))<tol .and. abs(v2(i))<tol .and. abs(v3(i))<tol .and. &
