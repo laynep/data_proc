@@ -1,13 +1,17 @@
 &sample
   succ_l=24800000
-  succ_w=4
   fail_l=24998174
-  fail_w=4
   small_l=15000000
-  small_w=4
   big_l=15000000
-  big_w=4
   bins=100
   both=.true.
-  core=.true.
+  core=.false.
+  dimn=4
+/
+&parameters
+	m = .03D3,
+	mu = 500D3,
+	nu = .015D3,
+	lambda = 6.8D-3,
+	energy_scale=1E3
 /
