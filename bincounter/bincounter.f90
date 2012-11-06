@@ -17,8 +17,9 @@ program bincounter
   integer :: binnumb, u, tot, i, j, change, start, dimn
   integer, dimension(:,:), allocatable :: inttable
   real(dp), dimension(:,:), allocatable :: table, binsreal
+  character(len=32) :: filename, fileform
 
-  namelist / sample / binnumb, dimn, tot
+  namelist / sample / binnumb, dimn, tot, filename, fileform
 
   !Read the namelist.
   open(unit=newunit(u),file="binparams.txt",delim="apostrophe", status="old")
@@ -28,9 +29,17 @@ program bincounter
   !Make the arrays.
   allocate(table(tot,dimn))
   allocate(inttable(tot,dimn))
-  open(unit=newunit(u), file="totalsucc.bin", form="unformatted")
+  if (fileform=="*") then
+    open(unit=newunit(u), file=filename)
+  else
+    open(unit=newunit(u), file=filename, form=fileform)
+  end if
   do i=1,tot
-    read(u) (table(i,j),j=1,dimn)
+    if (fileform=="*") then
+      read(u,*) (table(i,j),j=1,dimn)
+    else
+      read(u) (table(i,j),j=1,dimn)
+    end if
   end do
   close(u)
 
