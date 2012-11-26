@@ -1,11 +1,11 @@
 &sample
-  succ_l=24800000
-  fail_l=24998174
-  small_l=15000000
-  big_l=15000000
+  succ_l=25000000
+  fail_l=86356842
+  small_l=7789985
+  big_l=4710010
   bins=100
   both=.true.
-  core=.false.
+  core=.true.
   dimn=4
 /
 &parameters
@@ -13,5 +13,5 @@
   mu = 500D3,
   nu = .015D3,
   lambda = 6.8D-3,
-  energy_scale=1E3
+  energy_scale=1E-2
 /

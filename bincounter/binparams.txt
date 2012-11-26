@@ -1,7 +1,7 @@
 &sample,
-  binnumb=1500
+  binnumb=1000
   dimn=2
   tot=2500000
-  filename="totalsucc.txt"
-  fileform="*"
+  filename="totalsucc.bin"
+  fileform="unformatted"
 /
