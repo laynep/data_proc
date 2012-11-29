@@ -192,15 +192,18 @@ program histogram
 	integer :: i, j, u, test, err, w
 	logical, dimension(:,:), allocatable :: mask
   logical :: both, core
+  character(len=100) :: succfile, failfile, smallclustfile, bigclustfile
 
 	!Read dimns of succ table, numb of bins want in histog.
 	namelist/ sample / succ_l, fail_l, small_l, big_l, &
    & bins, both, core, dimn
+  namelist/ filenames / succfile, failfile, smallclustfile, bigclustfile
 
 	!Finds dimension for success file.
 	print*,"Reading namelist"
 	open(unit=newunit(u),file="params_hist.txt",status="old",delim="apostrophe")
 	read(u,nml=sample)
+  read(u,nml=filenames)
 	close(u)
 
   !Allocate working arrays.
@@ -209,7 +212,7 @@ program histogram
 
  	!Open the success file and read into vectors.
   print*,"Reading success file."
-  call read_from_file(table,"totalsucc.bin","unformatted",succ_l)
+  call read_from_file(table,succfile,"unformatted",succ_l)
 
 	!Find bin size for each dimension.
   allocate(minim(dimn),del(dimn))
@@ -243,7 +246,7 @@ program histogram
    	allocate(table(small_l,dimn),mask(small_l,dimn))
 
     print*,"Reading small corepoint files."
-    call read_from_file(table,"smallcorepoints.bin","unformatted",small_l)
+    call read_from_file(table,smallclustfile,"unformatted",small_l)
 
     !Calculate the histogram.
   	print*, "Calculating histogram for small core table."
@@ -261,7 +264,7 @@ program histogram
    	allocate(table(big_l,dimn),mask(big_l,dimn))
 
     print*,"Reading big corepoint files."
-    call read_from_file(table,"bigcorepoints.bin","unformatted",big_l)
+    call read_from_file(table,bigclustfile,"unformatted",big_l)
 
     !Calculate the histogram.
   	print*, "Calculating histogram for big core table."
@@ -281,7 +284,7 @@ program histogram
  	allocate(table(fail_l,dimn),mask(fail_l,dimn))
 
   print*,"Reading fail file."
-  call read_from_file(table,"totalfail.bin","unformatted",fail_l)
+  call read_from_file(table,failfile,"unformatted",fail_l)
 
   !Calculate the histogram.
   print*, "Calculating histogram for fail table."

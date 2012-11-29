@@ -1,17 +1,23 @@
 &sample
   succ_l=25000000
-  fail_l=86356842
-  small_l=7789985
-  big_l=4710010
+  fail_l=93600103
+  small_l=24999239
+  big_l=10
   bins=100
   both=.true.
   core=.true.
   dimn=4
+/
+&filenames
+  succfile="BIGtotalsucc.bin"
+  failfile="BIGtotalfail.bin"
+  smallclustfile="corepoints0001.bin"
+  bigclustfile="bigcorepoints.bin"
 /
 &parameters
   m = .03D3,
   mu = 500D3,
   nu = .015D3,
   lambda = 6.8D-3,
-  energy_scale=1E-2
+  energy_scale=1E0
 /
